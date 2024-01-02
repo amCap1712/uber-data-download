@@ -1,0 +1,9 @@
+fastapi~=0.105.0
+pydantic~=2.5.3
+SQLAlchemy~=2.0.23
+sqlmodel~=0.0.14
+psycopg2-binary~=2.9.9
+starlette~=0.27.0
+aiofile~=3.8.8
+aiohttp~=3.9.1
+aiohttp-retry~=2.8.3

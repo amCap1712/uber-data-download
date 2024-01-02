@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Uber Data Export",
+  "description": "Download uber trip data and submit it for research",
+  "version": "1.0",
+  "action": {
+    "default_popup": "main.html",
+    "default_icon": {
+      "16": "icon.png",
+      "24": "icon.png",
+      "32": "icon.png"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://riders.uber.com/trips"
+  ],
+  "content_scripts": [
+    {
+      "js": [
+        "scripts/main.js"
+      ],
+      "matches": [
+        "https://riders.uber.com/trips"
+      ]
+    }
+  ],
+  "externally_connectable": {
+    "matches": [
+      "https://riders.uber.com/trips"
+    ]
+  }
+}
