@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
@@ -33,12 +35,22 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
                 for invoice in item.invoices
             ]
 
+            fare = item.details.get("trip", {}).get("fare")
+            if fare:
+                try:
+                    fare = Decimal(fare.replace("₹", ""))
+                except ValueError:
+                    fare = None
+            else:
+                fare = None
+
             trip = Trip(
                 user_id=submission.user_id,
                 trip_id=trip_id,
                 summary=item.summary,
                 details=item.details,
-                invoices=invoices
+                invoices=invoices,
+                fare=fare,
             )
             session.add(trip)
             trip_ids.append(trip_id)
@@ -48,3 +60,11 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
         background_tasks.add_task(download_new_invoices, trip_ids)
 
     return Response(status_code=201)
+
+
+"""
+SELECT trip.id, uid.amount_payable, did.amount_payable, uid.amount_payable + did.amount_payable, trip.fare, uid.amount_payable + did.amount_payable != trip.fare
+  FROM trip
+  JOIN driver_invoice_data did on trip.trip_id = did.trip_id
+  JOIN uber_invoice_data uid on trip.trip_id = uid.trip_id
+"""

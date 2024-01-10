@@ -6,11 +6,10 @@ from aiofile import async_open
 from aiohttp import ClientSession
 from aiohttp_retry import RetryClient, ExponentialRetry
 
-from urllib.parse import urlparse
-
 from sqlmodel import Session, select
 
 from app.db import get_engine, Invoice, init_engine
+from app.process import process_new_invoices
 
 semaphore = asyncio.Semaphore(10)
 retry_options = ExponentialRetry(attempts=1)
@@ -47,26 +46,24 @@ async def download_invoices(condition):
         batch = []
 
         for invoice in invoices:
-            dir_path = Path.cwd() / "media" / invoice.trip_id
-            dir_path.mkdir(parents=True, exist_ok=True)
-            download_url = invoice.download_url
-
-            filename = urlparse(download_url).path.split("/")[-1]
-            download_path = dir_path / filename
-
+            download_path = invoice.get_path()
+            download_path.parent.mkdir(parents=True, exist_ok=True)
             batch.append((invoice, download_path))
 
         await download_batch(batch)
 
         session.commit()
+        return [invoice.id for invoice in invoices]
 
 
 async def download_new_invoices(trip_ids: list[str]):
-    await download_invoices(Invoice.trip_id.in_(trip_ids))
+    invoice_ids = await download_invoices(Invoice.trip_id.in_(trip_ids))
+    await process_new_invoices(invoice_ids)
 
 
 async def download_old_invoices():
-    await download_invoices(Invoice.downloaded.is_(False))
+    invoice_ids = await download_invoices(Invoice.downloaded.is_(False))
+    await process_new_invoices(invoice_ids)
 
 
 if __name__ == "__main__":
