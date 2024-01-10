@@ -4,7 +4,7 @@
   "description": "Download uber trip data and submit it for research",
   "version": "1.0",
   "action": {
-    "default_popup": "main.html",
+    "default_popup": "index.html",
     "default_icon": {
       "16": "icon.png",
       "24": "icon.png",
@@ -20,16 +20,11 @@
   "content_scripts": [
     {
       "js": [
-        "scripts/main.js"
+        "src/main.ts"
       ],
       "matches": [
         "https://riders.uber.com/trips"
       ]
     }
-  ],
-  "externally_connectable": {
-    "matches": [
-      "https://riders.uber.com/trips"
-    ]
-  }
+  ]
 }
