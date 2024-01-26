@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
 
@@ -8,9 +8,8 @@ services:
   volumes:
     - media:/code/media
   ports:
-    - "9001:80"
+    - "9002:80"
   environment:
-    - ROOT_PATH_PREFIX=/data-collector-admin
     - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@db/postgres
   depends_on:
    - db
