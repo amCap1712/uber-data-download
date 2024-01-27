@@ -23,7 +23,7 @@
         "src/main.ts"
       ],
       "matches": [
-        "https://riders.uber.com/trips"
+        "https://riders.uber.com/trips/*"
       ]
     }
   ]

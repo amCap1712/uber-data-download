@@ -1,6 +1,6 @@
 import { fetchWithRetry } from "./utils.ts";
 
-const DATA_COLLECTION_API_URL = "http://127.0.0.1:8000/";
+const DATA_COLLECTION_API_URL = "https://kiran-research2.comminfo.rutgers.edu//uber-data-download/";
 
 async function submitTrips(
   user_id: string,
