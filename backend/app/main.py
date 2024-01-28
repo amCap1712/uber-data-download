@@ -27,7 +27,6 @@ app.add_middleware(
 async def main(submission: Submission, background_tasks: BackgroundTasks):
     with Session(get_engine()) as session:
         trip_ids = []
-        trips = []
 
         for item in submission.data:
             trip_id = item.summary["uuid"]
@@ -46,19 +45,18 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
             else:
                 fare = None
 
-            trip = Trip(
+            statement = insert(Trip).values(
                 user_id=submission.user_id,
                 trip_id=trip_id,
                 summary=item.summary,
                 details=item.details,
                 invoices=invoices,
                 fare=fare,
-            )
-            trips.append(trip)
+            ).on_conflict_do_nothing()
+            session.execute(statement)
+
             trip_ids.append(trip_id)
 
-        statement = insert(Trip).values(trips).on_conflict_do_nothing()
-        session.execute(statement)
         session.commit()
 
         background_tasks.add_task(download_new_invoices, trip_ids)
