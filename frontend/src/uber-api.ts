@@ -2,7 +2,13 @@ import { fetchWithRetry } from "./utils.ts";
 
 const UBER_API_URL = "https://riders.uber.com/graphql";
 
-async function callAPI(operationName: string, query: string, variables: any) {
+type TripsVariables = {
+  includePast: boolean;
+  limit: number;
+  nextPageToken?: string;
+};
+
+async function callAPI(operationName: string, query: string, variables: unknown) {
   const body = {
     operationName,
     query,
@@ -72,7 +78,7 @@ fragment RVWebCommonActivityFragment on RVWebCommonActivity {
   __typename
 }
 `;
-  const variables: any = {
+  const variables: TripsVariables = {
     includePast: true,
     limit: 50,
   };
