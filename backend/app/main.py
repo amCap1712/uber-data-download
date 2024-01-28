@@ -1,3 +1,4 @@
+import json
 from decimal import Decimal
 
 from fastapi import FastAPI, BackgroundTasks
@@ -31,11 +32,6 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
         for item in submission.data:
             trip_id = item.summary["uuid"]
 
-            invoices = [
-                Invoice(download_url=invoice["downloadURL"])
-                for invoice in item.invoices
-            ]
-
             fare = item.details.get("trip", {}).get("fare")
             if fare:
                 try:
@@ -50,10 +46,13 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
                 trip_id=trip_id,
                 summary=item.summary,
                 details=item.details,
-                invoices=invoices,
                 fare=fare,
-            ).on_conflict_do_nothing()
-            session.execute(statement)
+            ).on_conflict_do_nothing().returning(Trip.id)
+            result = session.execute(statement)
+
+            if result.fetchone() is not None:
+                for invoice in item.invoices:
+                    session.add(Invoice(trip_id=trip_id, download_url=invoice["downloadURL"]))
 
             trip_ids.append(trip_id)
 
