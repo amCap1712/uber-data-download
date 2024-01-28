@@ -169,7 +169,7 @@ async function fetchAllTrips() {
     const response = await fetchTripsPage(nextPageToken);
     allTrips.push(...response["activities"]);
     nextPageToken = response["nextPageToken"];
-  } while (Boolean(nextPageToken));
+  } while (nextPageToken);
   return allTrips;
 }
 
