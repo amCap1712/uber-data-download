@@ -1,3 +1,4 @@
+import decimal
 from decimal import Decimal
 
 from fastapi import FastAPI, BackgroundTasks
@@ -23,6 +24,18 @@ app.add_middleware(
 )
 
 
+def parse_fare(fare: str):
+    try:
+        index = 0
+        for letter in fare:
+            if letter.isnumeric():
+                break
+            index += 1
+        return Decimal(fare[index:])
+    except (ValueError, decimal.InvalidOperation):
+        return None
+
+
 @app.post("/")
 async def main(submission: Submission, background_tasks: BackgroundTasks):
     with Session(get_engine()) as session:
@@ -33,12 +46,7 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
 
             fare = item.details.get("trip", {}).get("fare")
             if fare:
-                try:
-                    fare = Decimal(fare.replace("₹", ""))
-                except ValueError:
-                    fare = None
-            else:
-                fare = None
+                fare = parse_fare(fare)
 
             statement = insert(Trip).values(
                 user_id=submission.user_id,
