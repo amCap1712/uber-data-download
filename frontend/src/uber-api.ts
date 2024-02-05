@@ -28,17 +28,17 @@ async function callAPI(operationName: string, query: string, variables: unknown)
 
 async function fetchTripsPage(nextPageToken: string | null) {
   const query = `
-query Activities(
-  $cityID: Int
-  $includePast: Boolean = true
-  $includeUpcoming: Boolean = true
-  $limit: Int = 5
-  $nextPageToken: String
-) {
+query Activities($cityID: Int, $endTimeMs: Float, $includePast: Boolean = true, $includeUpcoming: Boolean = true, $limit: Int = 5, $nextPageToken: String, $orderTypes: [RVWebCommonActivityOrderType\u0021] = [RIDES, TRAVEL], $profileType: RVWebCommonActivityProfileType = PERSONAL, $startTimeMs: Float) {
   activities(cityID: $cityID) {
     cityID
-    past(limit: $limit, nextPageToken: $nextPageToken)
-      @include(if: $includePast) {
+    past(
+      endTimeMs: $endTimeMs
+      limit: $limit
+      nextPageToken: $nextPageToken
+      orderTypes: $orderTypes
+      profileType: $profileType
+      startTimeMs: $startTimeMs
+    ) @include(if: $includePast) {
       activities {
         ...RVWebCommonActivityFragment
         __typename

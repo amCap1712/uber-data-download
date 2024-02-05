@@ -60,8 +60,7 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
             if result.fetchone() is not None:
                 for invoice in item.invoices:
                     session.add(Invoice(trip_id=trip_id, download_url=invoice["downloadURL"]))
-
-            trip_ids.append(trip_id)
+                trip_ids.append(trip_id)
 
         session.commit()
 
