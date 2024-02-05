@@ -25,6 +25,8 @@ app.add_middleware(
 
 
 def parse_fare(fare: str):
+    if not fare:
+        return None
     try:
         index = 0
         for letter in fare:
@@ -44,9 +46,7 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
         for item in submission.data:
             trip_id = item.summary["uuid"]
 
-            fare = item.details.get("trip", {}).get("fare")
-            if fare:
-                fare = parse_fare(fare)
+            fare = parse_fare(item.details.get("trip", {}).get("fare"))
 
             statement = insert(Trip).values(
                 user_id=submission.user_id,
