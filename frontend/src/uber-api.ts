@@ -4,6 +4,10 @@ const UBER_API_URL = "https://riders.uber.com/graphql";
 
 type TripsVariables = {
   includePast: boolean;
+  includeUpcoming: boolean;
+  orderTypes: Array<string>,
+  profileType: string,
+  cityID?: number,
   limit: number;
   nextPageToken?: string;
 };
@@ -26,7 +30,7 @@ async function callAPI(operationName: string, query: string, variables: unknown)
   return JSON.parse(text);
 }
 
-async function fetchTripsPage(nextPageToken: string | null) {
+async function fetchTripsPage(cityID: number | null, nextPageToken: string | null) {
   const query = `
 query Activities($cityID: Int, $endTimeMs: Float, $includePast: Boolean = true, $includeUpcoming: Boolean = true, $limit: Int = 5, $nextPageToken: String, $orderTypes: [RVWebCommonActivityOrderType\u0021] = [RIDES, TRAVEL], $profileType: RVWebCommonActivityProfileType = PERSONAL, $startTimeMs: Float) {
   activities(cityID: $cityID) {
@@ -80,13 +84,19 @@ fragment RVWebCommonActivityFragment on RVWebCommonActivity {
 `;
   const variables: TripsVariables = {
     includePast: true,
-    limit: 50,
+    includeUpcoming: false,
+    orderTypes: ["RIDES", "TRAVEL"],
+    profileType: "PERSONAL",
+    limit: 10,
   };
   if (nextPageToken) {
     variables["nextPageToken"] = nextPageToken;
   }
+  if (cityID) {
+    variables["cityID"] = cityID;
+  }
   const json = await callAPI("Activities", query, variables);
-  return json["data"]["activities"]["past"];
+  return json["data"]["activities"];
 }
 
 async function fetchTripInvoices(tripUUID: string) {
@@ -170,11 +180,13 @@ async function fetchCompleteTripData(trip: Trip) {
 
 async function fetchAllTrips() {
   let nextPageToken = null;
+  let cityID = null;
   const allTrips = [];
   do {
-    const response = await fetchTripsPage(nextPageToken);
-    allTrips.push(...response["activities"]);
-    nextPageToken = response["nextPageToken"];
+    const response = await fetchTripsPage(cityID, nextPageToken);
+    allTrips.push(...response["past"]["activities"]);
+    nextPageToken = response["past"]["nextPageToken"];
+    cityID = response["cityID"];
   } while (nextPageToken);
   return allTrips;
 }
