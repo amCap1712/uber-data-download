@@ -1,13 +1,13 @@
-import { fetchWithRetry } from "./utils.ts";
+import { fetchWithRetry } from './utils.ts';
 
-const UBER_API_URL = "https://riders.uber.com/graphql";
+const UBER_API_URL = 'https://riders.uber.com/graphql';
 
 type TripsVariables = {
   includePast: boolean;
   includeUpcoming: boolean;
-  orderTypes: Array<string>,
-  profileType: string,
-  cityID?: number,
+  orderTypes: Array<string>;
+  profileType: string;
+  cityID?: number;
   limit: number;
   nextPageToken?: string;
 };
@@ -20,11 +20,11 @@ async function callAPI(operationName: string, query: string, variables: unknown)
   };
   const response = await fetchWithRetry(UBER_API_URL, {
     headers: {
-      "content-type": "application/json",
-      "x-csrf-token": "x",
+      'content-type': 'application/json',
+      'x-csrf-token': 'x',
     },
     body: JSON.stringify(body),
-    method: "POST",
+    method: 'POST',
   });
   const text = await response.text();
   return JSON.parse(text);
@@ -85,18 +85,18 @@ fragment RVWebCommonActivityFragment on RVWebCommonActivity {
   const variables: TripsVariables = {
     includePast: true,
     includeUpcoming: false,
-    orderTypes: ["RIDES", "TRAVEL"],
-    profileType: "PERSONAL",
+    orderTypes: ['RIDES', 'TRAVEL'],
+    profileType: 'PERSONAL',
     limit: 10,
   };
   if (nextPageToken) {
-    variables["nextPageToken"] = nextPageToken;
+    variables['nextPageToken'] = nextPageToken;
   }
   if (cityID) {
-    variables["cityID"] = cityID;
+    variables['cityID'] = cityID;
   }
-  const json = await callAPI("Activities", query, variables);
-  return json["data"]["activities"];
+  const json = await callAPI('Activities', query, variables);
+  return json['data']['activities'];
 }
 
 async function fetchTripInvoices(tripUUID: string) {
@@ -113,8 +113,8 @@ query GetInvoiceFiles($tripUUID: ID!) {
 }
 `;
   const variables = { tripUUID };
-  const json = await callAPI("GetInvoiceFiles", query, variables);
-  return json["data"]["invoiceFiles"]["files"];
+  const json = await callAPI('GetInvoiceFiles', query, variables);
+  return json['data']['invoiceFiles']['files'];
 }
 
 async function fetchTripDetails(tripUUID: string) {
@@ -161,20 +161,17 @@ query GetTrip($tripUUID: String!) {
 }    
 `;
   const variables = { tripUUID };
-  const json = await callAPI("GetTrip", query, variables);
-  return json["data"]["getTrip"];
+  const json = await callAPI('GetTrip', query, variables);
+  return json['data']['getTrip'];
 }
 
 async function fetchCompleteTripData(trip: Trip) {
   const tripUUID = trip.uuid;
-  const promises = await Promise.all([
-    fetchTripDetails(tripUUID),
-    fetchTripInvoices(tripUUID),
-  ]);
+  const promises = await Promise.all([fetchTripDetails(tripUUID), fetchTripInvoices(tripUUID)]);
   return {
     summary: trip,
-    details: promises[0],
-    invoices: promises[1],
+    details: promises[0] as never,
+    invoices: promises[1] as never,
   };
 }
 
@@ -184,16 +181,11 @@ async function fetchAllTrips() {
   const allTrips = [];
   do {
     const response = await fetchTripsPage(cityID, nextPageToken);
-    allTrips.push(...response["past"]["activities"]);
-    nextPageToken = response["past"]["nextPageToken"];
-    cityID = response["cityID"];
+    allTrips.push(...response['past']['activities']);
+    nextPageToken = response['past']['nextPageToken'];
+    cityID = response['cityID'];
   } while (nextPageToken);
   return allTrips;
 }
 
-export {
-  fetchAllTrips,
-  fetchCompleteTripData,
-  fetchTripDetails,
-  fetchTripInvoices,
-};
+export { fetchAllTrips, fetchCompleteTripData, fetchTripDetails, fetchTripInvoices };

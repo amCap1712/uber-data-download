@@ -3,7 +3,7 @@ import { fetchWithRetry } from "./utils.ts";
 const DATA_COLLECTION_API_URL = "https://kiran-research2.comminfo.rutgers.edu//uber-data-download/";
 
 async function submitTrips(
-  user_id: string,
+  prolific_id: string,
   trips: TripCompleteDetails[],
 ): Promise<string[]> {
   const response = await fetchWithRetry(DATA_COLLECTION_API_URL, {
@@ -12,7 +12,7 @@ async function submitTrips(
     },
     method: "POST",
     body: JSON.stringify({
-      user_id,
+      user_id: prolific_id,
       data: trips,
     }),
   });

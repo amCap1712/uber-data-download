@@ -4,6 +4,6 @@ type Trip = {
 
 type TripCompleteDetails = {
   summary: Trip;
-  details: any;
-  invoices: any;
+  details: never;
+  invoices: never;
 };
