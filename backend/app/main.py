@@ -5,7 +5,9 @@ from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.dialects.postgresql import insert
 from sqlmodel import Session
-from starlette.responses import Response
+from starlette.requests import Request
+from starlette.responses import Response, HTMLResponse
+from starlette.templating import Jinja2Templates
 
 from app.db import get_engine, Trip, Invoice, init_engine
 from app.download import download_new_invoices
@@ -15,6 +17,7 @@ from app.model import Submission
 init_engine()
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -67,3 +70,8 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
         background_tasks.add_task(download_new_invoices, trip_ids)
 
     return Response(status_code=201)
+
+
+@app.get("/study", response_class=HTMLResponse)
+async def read_item(request: Request):
+    return templates.TemplateResponse("study.html", {"request": request})
