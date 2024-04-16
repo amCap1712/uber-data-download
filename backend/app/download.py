@@ -8,8 +8,8 @@ from aiohttp_retry import RetryClient, ExponentialRetry
 
 from sqlmodel import Session, select
 
-from .db import get_engine, Invoice, init_engine
-from .process import process_new_invoices
+from app.db import get_engine, Invoice, init_engine
+from app.process import process_new_invoices
 
 semaphore = asyncio.Semaphore(10)
 retry_options = ExponentialRetry(attempts=1)

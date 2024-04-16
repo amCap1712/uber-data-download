@@ -4,7 +4,7 @@ from decimal import Decimal
 from sqlmodel import Session, select, and_
 from pypdf import PdfReader
 
-from .db import get_engine, Invoice, InvoiceType, UberInvoiceData, DriverInvoiceData, init_engine
+from app.db import get_engine, Invoice, InvoiceType, UberInvoiceData, DriverInvoiceData, init_engine
 
 
 def pdf_to_text(file_path: str) -> tuple[InvoiceType, list[str]]:
