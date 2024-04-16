@@ -1,7 +1,9 @@
 import decimal
+import json
 from decimal import Decimal
 
 from fastapi import FastAPI, BackgroundTasks
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.dialects.postgresql import insert
 from sqlmodel import Session
@@ -45,6 +47,8 @@ def parse_fare(fare: str):
 async def main(submission: Submission, background_tasks: BackgroundTasks):
     with Session(get_engine()) as session:
         trip_ids = []
+
+        print(json.dumps(jsonable_encoder(submission)))
 
         for item in submission.data:
             trip_id = item.summary["uuid"]
