@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from decimal import Decimal
 
 from sqlmodel import Session, select, and_
@@ -74,13 +75,16 @@ async def process_invoices(condition):
         invoices = session.scalars(query)
 
         for invoice in invoices:
-            invoice_type, lines = pdf_to_text(str(invoice.get_path()))
-            if invoice_type == InvoiceType.UBER:
-                invoice_data = extract_uber_invoice_data(invoice.trip_id, lines)
-            else:
-                invoice_data = extract_driver_invoice_data(invoice.trip_id, lines)
-            invoice.processed = True
-            session.add(invoice_data)
+            try:
+                invoice_type, lines = pdf_to_text(str(invoice.get_path()))
+                if invoice_type == InvoiceType.UBER:
+                    invoice_data = extract_uber_invoice_data(invoice.trip_id, lines)
+                else:
+                    invoice_data = extract_driver_invoice_data(invoice.trip_id, lines)
+                invoice.processed = True
+                session.add(invoice_data)
+            except Exception as e:
+                traceback.print_exc()
 
         session.commit()
 
