@@ -1,6 +1,6 @@
 import { fetchWithRetry } from './utils.ts';
 
-const DATA_COLLECTION_API_URL = 'https://kiran-research2.comminfo.rutgers.edu//uber-data-download/';
+const DATA_COLLECTION_API_URL = 'https://kiran-research2.comminfo.rutgers.edu/uber-data-download/';
 const RECEIPT_COLLECTION_API_URL = `${DATA_COLLECTION_API_URL}/receipts`;
 
 async function transferReceipt(tripUUID: string) {
