@@ -90,6 +90,7 @@ class Trip(SQLModel, table=True):
     trip_id: str = Field(unique=True)
     summary: dict = Field(default={}, sa_column=Column(JSONB))
     details: dict = Field(default={}, sa_column=Column(JSONB))
+    invoices_json: list[dict] = Field(default=[], sa_column=Column(JSONB))
     fare: Optional[Decimal] = None
 
     invoices: list[Invoice] = Relationship(back_populates="trip")

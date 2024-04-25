@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import './App.css';
 import Modal from 'react-bootstrap/Modal';
 import { fetchAllTrips, fetchCompleteTripData } from './uber-api.ts';
-import { getSubmittedTrips, recordSubmittedTrips } from './storage.ts';
 import { chunk } from 'lodash-es';
 import { submitTrips } from './collection-api.ts';
 import ProgressBar from 'react-bootstrap/ProgressBar';
@@ -26,16 +25,6 @@ function App() {
       setMessage('Downloading trips data from Uber...');
       const allTrips = await fetchAllTrips();
 
-      setMessage('Filtering already submitted trip ids...');
-      const submittedTripIds = await getSubmittedTrips();
-
-      const tripsToSubmit = [];
-      for (const trip of allTrips) {
-        if (!submittedTripIds.includes(trip.uuid)) {
-          tripsToSubmit.push(trip);
-        }
-      }
-
       setMessage('Gathering trip invoices from Uber...');
       const promises = allTrips.map(async (trip: Trip) => fetchCompleteTripData(trip));
       const tripsData = await Promise.all(promises);
@@ -43,13 +32,11 @@ function App() {
       const chunks = chunk(tripsData, SUBMISSION_CHUNK_SIZE);
       for (const [idx, chunk] of chunks.entries()) {
         setMessage(`Submitting trip invoices for research (${idx * SUBMISSION_CHUNK_SIZE} / ${tripsData.length})...`);
-        const submittedTripIds = await submitTrips(prolific_id, chunk);
-        await recordSubmittedTrips(submittedTripIds);
+        await submitTrips(prolific_id, chunk);
       }
       setMessage('Done.');
       setShowComplete(true);
     }
-
     downloadAndExportUberData();
   }, [prolific_id]);
 

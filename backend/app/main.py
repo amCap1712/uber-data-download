@@ -2,7 +2,7 @@ import decimal
 import json
 from decimal import Decimal
 
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.dialects.postgresql import insert
@@ -11,7 +11,7 @@ from starlette.requests import Request
 from starlette.responses import Response, HTMLResponse
 from starlette.templating import Jinja2Templates
 
-from app.db import get_engine, Trip, Invoice, init_engine
+from app.db import get_engine, Trip, Invoice, init_engine, MEDIA_BASE_PATH
 from app.download import download_new_invoices
 from app.model import Submission
 
@@ -60,6 +60,7 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
                 trip_id=trip_id,
                 summary=item.summary,
                 details=item.details,
+                invoices_json=item.invoices,
                 fare=fare,
             ).on_conflict_do_nothing().returning(Trip.id)
             result = session.execute(statement)
@@ -79,3 +80,12 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
 @app.get("/study", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("study.html", {"request": request})
+
+
+@app.post("/receipts")
+async def create_upload_file(trip_id: str, file: UploadFile):
+    path = MEDIA_BASE_PATH / "media" / trip_id / "receipt.pdf"
+    path.parent.mkdir(exist_ok=True)
+    with open(path, mode="wb") as f:
+        f.write(file.file.read())
+    return {}

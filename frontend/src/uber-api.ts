@@ -1,4 +1,5 @@
 import { fetchWithRetry } from './utils.ts';
+import { transferReceipt } from './collection-api.ts';
 
 const UBER_API_URL = 'https://riders.uber.com/graphql';
 
@@ -167,7 +168,11 @@ query GetTrip($tripUUID: String!) {
 
 async function fetchCompleteTripData(trip: Trip) {
   const tripUUID = trip.uuid;
-  const promises = await Promise.all([fetchTripDetails(tripUUID), fetchTripInvoices(tripUUID)]);
+  const promises = await Promise.all([
+    fetchTripDetails(tripUUID),
+    fetchTripInvoices(tripUUID),
+    transferReceipt(tripUUID),
+  ]);
   return {
     summary: trip,
     details: promises[0] as never,
