@@ -38,7 +38,6 @@ def extract_decimal_value(lines: list[str], key: str, offset: int) -> Decimal:
 
 
 def extract_tax(lines: list[str]) -> tuple[Decimal, int]:
-    print(lines)
     for idx, line in enumerate(lines):
         if "Total CGST" in line or "Total SGST" in line:
             offset = 2
@@ -112,6 +111,10 @@ async def process_invoices(condition):
         for invoice in invoices:
             try:
                 invoice_type, lines = pdf_to_text(str(invoice.get_path()))
+
+                if "Australia" in lines or "United Kingdom" in lines or "Credit Note" in lines:
+                    continue
+
                 if invoice_type == InvoiceType.UBER:
                     invoice_data = extract_uber_invoice_data(invoice.trip_id, lines)
                 else:
