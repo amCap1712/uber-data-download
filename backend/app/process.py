@@ -92,6 +92,8 @@ def extract_uber_invoice_data(trip_id: str, lines: list[str]):
 def extract_driver_invoice_data(trip_id: str, lines: list[str]):
     tax, offset = extract_tax(lines)
     fare = extract_decimal_value(lines, "Transportation service fare", offset)
+    if fare is None:
+        print(lines)
     net_amount = extract_decimal_value(lines, "Total net amount", 2)
     amount_payable = extract_decimal_value(lines, "Total amount payable", 2)
     return DriverInvoiceData(
@@ -111,6 +113,7 @@ async def process_invoices(condition):
         for invoice in invoices:
             try:
                 invoice_type, lines = pdf_to_text(str(invoice.get_path()))
+                print(invoice.get_path())
 
                 if "Australia" in lines or "United Kingdom" in lines or "Credit Note" in lines:
                     continue
