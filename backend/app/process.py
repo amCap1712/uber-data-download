@@ -124,7 +124,14 @@ async def process_invoices(condition):
         for invoice in invoices:
             try:
                 invoice_type, lines = pdf_to_text(str(invoice.get_path()))
-                if "Australia" in lines or "United Kingdom" in lines or "Credit Note" in lines:
+                fields = ["Australia", "United Kingdom", "Credit Note"]
+                skip = False
+                for line in lines:
+                    for field in fields:
+                        if field.lower() in line.lower():
+                            skip = True
+                            break
+                if skip:
                     continue
                 print(invoice.get_path())
                 if invoice_type == InvoiceType.UBER:
