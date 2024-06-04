@@ -113,11 +113,9 @@ async def process_invoices(condition):
         for invoice in invoices:
             try:
                 invoice_type, lines = pdf_to_text(str(invoice.get_path()))
-                print(invoice.get_path())
-
                 if "Australia" in lines or "United Kingdom" in lines or "Credit Note" in lines:
                     continue
-
+                print(invoice.get_path())
                 if invoice_type == InvoiceType.UBER:
                     invoice_data = extract_uber_invoice_data(invoice.trip_id, lines)
                 else:
