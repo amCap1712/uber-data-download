@@ -85,6 +85,8 @@ def extract_uber_invoice_data(trip_id: str, lines: list[str]):
     net_amount = extract_decimal_value(lines, "Total net amount", 2)
     try:
         rounding = extract_decimal_value(lines, "Rounding", offset)
+        if rounding is None:
+            rounding = Decimal(0)
     except decimal.InvalidOperation:
         rounding = Decimal(0)
     amount_payable = extract_decimal_value(lines, "Total amount payable", 2)
