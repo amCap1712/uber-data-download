@@ -72,7 +72,16 @@ def extract_tax(lines: list[str]) -> tuple[Decimal, int]:
 
 def extract_uber_invoice_data(trip_id: str, lines: list[str]):
     tax, offset = extract_tax(lines)
-    fees = extract_decimal_value(lines, "Uber Fees", offset)
+
+    uber_fees = extract_decimal_value(lines, "Uber Fees", offset)
+    booking_fee = extract_decimal_value(lines, "Booking Fee", offset)
+    if booking_fee is None:
+        booking_fee = Decimal(0)
+    convenience_fee = extract_decimal_value(lines, "Convenience Fee", offset)
+    if convenience_fee is None:
+        convenience_fee = Decimal(0)
+    fees = uber_fees + booking_fee + convenience_fee
+
     net_amount = extract_decimal_value(lines, "Total net amount", 2)
     try:
         rounding = extract_decimal_value(lines, "Rounding", offset)
@@ -118,10 +127,13 @@ async def process_invoices(condition):
                 print(invoice.get_path())
                 if invoice_type == InvoiceType.UBER:
                     invoice_data = extract_uber_invoice_data(invoice.trip_id, lines)
+                    if invoice_data.fees is not None:
+                        session.add(invoice_data)
                 else:
                     invoice_data = extract_driver_invoice_data(invoice.trip_id, lines)
+                    if invoice_data.fare is not None:
+                        session.add(invoice_data)
                 invoice.processed = True
-                session.add(invoice_data)
             except Exception as e:
                 traceback.print_exc()
 
