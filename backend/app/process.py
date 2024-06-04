@@ -1,4 +1,5 @@
 import asyncio
+import decimal
 import traceback
 from decimal import Decimal
 
@@ -25,21 +26,59 @@ def pdf_to_text(file_path: str) -> tuple[InvoiceType, list[str]]:
 
 
 def extract_decimal_value(lines: list[str], key: str, offset: int) -> Decimal:
-    value = lines[lines.index(key) + offset]
-    if value == '-':
-        new_offset = offset + (2 if offset == 6 else 1)
-        value = '-' + lines[lines.index(key) + new_offset]
-    return Decimal(value)
+    key = key.lower()
+    for idx, line in enumerate(lines):
+        if key in line.lower():
+            value = lines[idx + offset]
+            if value == "-":
+                offset += 1
+                value = "-" + lines[idx + offset]
+            value = value.replace(",", "")
+            return Decimal(value)
+
+
+def extract_tax(lines: list[str]) -> tuple[Decimal, int]:
+    print(lines)
+    for idx, line in enumerate(lines):
+        if "Total CGST" in line or "Total SGST" in line:
+            offset = 2
+            value1 = lines[idx + offset]
+            if value1 == "-":
+                offset += 1
+                value1 = "-" + lines[idx + offset]
+            value1 = value1.replace(",", "")
+
+            offset += 3
+            value2 = lines[idx + offset]
+            if value2 == "-":
+                offset += 1
+                value2 = "-" + lines[idx + offset]
+            value2 = value2.replace(",", "")
+
+            value = Decimal(value1) + Decimal(value2)
+            return value, 4 + offset
+        
+        if "Total IGST" in line:
+            offset = 2
+            value = lines[idx + offset]
+            if value == "-":
+                offset += 1
+                value = "-" + lines[idx + offset]
+            value = value.replace(",", "")
+
+            return Decimal(value), 4 + offset
+
+    return Decimal(0), 6
 
 
 def extract_uber_invoice_data(trip_id: str, lines: list[str]):
-    try:
-        rounding = extract_decimal_value(lines, "Rounding", 6)
-    except ValueError:
-        rounding = Decimal(0)
-    fees = extract_decimal_value(lines, "Uber Fees", 6)
+    tax, offset = extract_tax(lines)
+    fees = extract_decimal_value(lines, "Uber Fees", offset)
     net_amount = extract_decimal_value(lines, "Total net amount", 2)
-    tax = extract_decimal_value(lines, "Total IGST 18%", 2)
+    try:
+        rounding = extract_decimal_value(lines, "Rounding", offset)
+    except decimal.InvalidOperation:
+        rounding = Decimal(0)
     amount_payable = extract_decimal_value(lines, "Total amount payable", 2)
     return UberInvoiceData(
         trip_id=trip_id,
@@ -52,13 +91,9 @@ def extract_uber_invoice_data(trip_id: str, lines: list[str]):
 
 
 def extract_driver_invoice_data(trip_id: str, lines: list[str]):
-    fare = extract_decimal_value(lines, "Transportation service fare", 9)
+    tax, offset = extract_tax(lines)
+    fare = extract_decimal_value(lines, "Transportation service fare", offset)
     net_amount = extract_decimal_value(lines, "Total net amount", 2)
-    try:
-        tax = extract_decimal_value(lines, "Total CGST 2.5%", 2) \
-              + extract_decimal_value(lines, "Total SGST/UTGST 2.5%", 2)
-    except ValueError:
-        tax = extract_decimal_value(lines, "Total IGST 5%", 2)
     amount_payable = extract_decimal_value(lines, "Total amount payable", 2)
     return DriverInvoiceData(
         trip_id=trip_id,
