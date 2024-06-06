@@ -1,4 +1,4 @@
-# Uber Data Export
+# Trip Data Export
 
 A chrome extension to export Uber invoices and submit it for research studies.
 
