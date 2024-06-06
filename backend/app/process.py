@@ -15,7 +15,7 @@ def pdf_to_text(file_path: str) -> tuple[InvoiceType, list[str]]:
     text = page.extract_text()
 
     ltext = text.lower()
-    if "uber fees" in ltext or "booking fee" in ltext or "convenience fee" in ltext:
+    if "uber fees" in ltext or "booking fee" in ltext or "convenience fee" in ltext or "cancellation fee" in ltext:
         invoice_type = InvoiceType.UBER
     else:
         invoice_type = InvoiceType.DRIVER
@@ -86,7 +86,10 @@ def extract_uber_invoice_data(trip_id: str, lines: list[str]):
     convenience_fee = extract_decimal_value(lines, "Convenience Fee", offset)
     if convenience_fee is None:
         convenience_fee = Decimal(0)
-    fees = uber_fees + booking_fee + convenience_fee
+    cancellation_fee = extract_decimal_value(lines, "Cancellation fee", offset)
+    if cancellation_fee is None:
+        cancellation_fee = Decimal(0)
+    fees = uber_fees + booking_fee + convenience_fee + cancellation_fee
 
     net_amount = extract_decimal_value(lines, "Total net amount", 2)
     try:
@@ -168,3 +171,4 @@ async def process_old_invoices():
 if __name__ == "__main__":
     init_engine()
     asyncio.run(process_old_invoices())
+
