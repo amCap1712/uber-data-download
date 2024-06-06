@@ -130,7 +130,7 @@ async def process_invoices(condition):
         for invoice in invoices:
             try:
                 invoice_type, lines = pdf_to_text(str(invoice.get_path()))
-                fields = ["Australia", "United Kingdom", "Credit Note"]
+                fields = ["Australia", "United Kingdom", "Germany", "France", "Credit Note"]
                 skip = False
                 for line in lines:
                     for field in fields:
