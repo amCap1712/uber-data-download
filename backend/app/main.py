@@ -89,3 +89,45 @@ async def create_upload_file(trip_id: str, file: UploadFile):
     with open(path, mode="wb") as f:
         f.write(file.file.read())
     return {}
+
+"""
+select user_id
+     , max(trip_id)
+     , count(*)
+     , max(t.last_updated) as last_updated_max
+  from trip t
+  join invoice i
+ using (trip_id)
+ group by user_id
+ order by last_updated_max desc 
+
+ 65f34d32d899ea4fd6d6197b
+ 65fb0cd08626e511f3eafccb
+ 65f4b1857f5b498314e118cf
+ 11c6dc4d-7acc-47b6-abfb-5cc1f3faf039
+ cce64325-82bd-46f4-8ac9-02883361b3ea
+ 58d180a9-72b2-45e6-a2b8-9a1bdac83762
+
+select t.*
+  from trip t
+  join invoice i
+ using (trip_id)
+ where t.user_id in ('65f34d32d899ea4fd6d6197b', '65fb0cd08626e511f3eafccb', '65f4b1857f5b498314e118cf')
+   and i.processed is false;
+   
+with temp as (
+    select user_id
+     , trip_id
+  from trip t
+  join driver_invoice_data d
+ using (trip_id)
+group by user_id, trip_id
+)
+ select user_id
+      , count(*)
+   from temp
+   where user_id like '65%'
+ group by user_id
+ order by user_id
+"""
+
