@@ -78,6 +78,8 @@ def extract_uber_invoice_data(trip_id: str, lines: list[str]):
     tax, offset = extract_tax(lines)
 
     uber_fees = extract_decimal_value(lines, "Uber Fees", offset)
+    if uber_fees is None:
+        uber_fees = Decimal(0)
     booking_fee = extract_decimal_value(lines, "Booking Fee", offset)
     if booking_fee is None:
         booking_fee = Decimal(0)
@@ -142,15 +144,16 @@ async def process_invoices(condition):
                     invoice_data = extract_uber_invoice_data(invoice.trip_id, lines)
                     if invoice_data.fees is not None:
                         session.add(invoice_data)
+                        invoice.processed = True
+                        session.commit()
                 else:
                     invoice_data = extract_driver_invoice_data(invoice.trip_id, lines)
                     if invoice_data.fare is not None:
                         session.add(invoice_data)
-                invoice.processed = True
+                        invoice.processed = True
+                        session.commit()
             except Exception as e:
                 traceback.print_exc()
-
-        session.commit()
 
 
 async def process_new_invoices(invoice_ids: list[int]):
