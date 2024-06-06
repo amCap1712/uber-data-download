@@ -154,6 +154,7 @@ async def process_invoices(condition):
                         session.commit()
             except Exception as e:
                 traceback.print_exc()
+                session.rollback()
 
 
 async def process_new_invoices(invoice_ids: list[int]):
