@@ -14,7 +14,11 @@ def pdf_to_text(file_path: str) -> tuple[InvoiceType, list[str]]:
     page = reader.pages[0]
     text = page.extract_text()
 
-    invoice_type = InvoiceType.UBER if "uber fees" in text.lower() else InvoiceType.DRIVER
+    ltext = text.lower()
+    if "uber fees" in ltext or "booking fee" in ltext or "convenience fee" in ltext:
+        invoice_type = InvoiceType.UBER
+    else:
+        invoice_type = InvoiceType.DRIVER
 
     lines = []
     for line in text.split("\n"):
