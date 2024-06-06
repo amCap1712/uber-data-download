@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Uber Data Export",
-  "description": "Download uber trip data and submit it for research",
-  "version": "1.2",
+  "name": "Trip Data Export",
+  "description": "Download rides data for your trips and submit it for research",
+  "version": "1.4",
   "action": {
     "default_popup": "index.html",
     "default_icon": {

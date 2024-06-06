@@ -10,6 +10,7 @@ import { Form } from 'react-bootstrap';
 
 const SUBMISSION_CHUNK_SIZE = 10;
 const COMPLETION_URL = 'https://app.prolific.com/submissions/complete?cc=CHFVP5PM';
+const SCREENED_OUT_URL = 'https://app.prolific.com/submissions/complete?cc=CE78VI2J';
 
 function App() {
   const [disabled, setDisabled] = useState(false);
@@ -18,12 +19,18 @@ function App() {
   const [prolific_id, setProlificId] = useState<string>('');
   const [showExport, setShowExport] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
+  const [screenedOut, setScreenedOut] = useState(false);
 
   const handleClick = useCallback(() => {
     async function downloadAndExportUberData() {
       setDisabled(false);
       setMessage('Downloading trips data from Uber...');
       const allTrips = await fetchAllTrips();
+
+      if (allTrips.length === 0) {
+        setScreenedOut(true);
+        setMessage('No trips found.');
+      }
 
       setMessage('Gathering trip invoices from Uber...');
       const promises = allTrips.map(async (trip: Trip) => fetchCompleteTripData(trip));
@@ -52,7 +59,9 @@ function App() {
               {showComplete ? (
                 <div>
                   <p>Thank you for participating in the study.</p>
-                  <Button href={COMPLETION_URL}>Click here to complete the study</Button>
+                  <Button href={screenedOut ? SCREENED_OUT_URL : COMPLETION_URL}>
+                    Click here to complete the study
+                  </Button>
                 </div>
               ) : showExport ? (
                 message ? (
