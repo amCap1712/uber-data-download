@@ -9,7 +9,7 @@ def main():
     condition = Trip.duration.is_(None)
     with Session(get_engine()) as session:
         query = select(Trip).where(condition)
-        trips = session.execute(query).all()
+        trips = session.scalars(query)
 
         for trip in trips:
             trip_dict = trip.details.get("trip", {})
