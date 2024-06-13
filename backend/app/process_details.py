@@ -19,6 +19,7 @@ def main():
 
                 distance = receipt_dict.get("distance")
                 if distance is not None:
+                    print(distance)
                     trip.distance = Decimal(distance)
                 trip.distance_label = receipt_dict.get("distanceLabel")
 
