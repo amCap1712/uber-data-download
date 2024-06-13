@@ -15,9 +15,12 @@ def main():
             trip_dict = trip.details.get("trip", {})
             receipt_dict = trip.details.get("receipt", {})
 
-            trip.duration = receipt_dict.get("duration")
-            trip.distance = Decimal(receipt_dict.get("distance"))
+            distance = receipt_dict.get("distance")
+            if distance is not None:
+                trip.distance = Decimal(distance)
             trip.distance_label = receipt_dict.get("distanceLabel")
+
+            trip.duration = receipt_dict.get("duration")
             trip.begin_trip_time = trip_dict.get("beginTripTime")
             trip.dropoff_trip_time = trip_dict.get("dropoffTime")
 

@@ -59,7 +59,10 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
             dropoff_trip_time = trip_dict.get("dropoffTime")
             fare = parse_fare(trip_dict.get("fare"))
             duration = receipt_dict.get("duration")
-            distance = Decimal(receipt_dict.get("distance"))
+
+            distance = receipt_dict.get("distance")
+            if distance is not None:
+                distance = Decimal(distance)
             distance_label = receipt_dict.get("distanceLabel")
 
             begin_address = None
