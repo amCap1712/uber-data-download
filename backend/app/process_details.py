@@ -2,13 +2,13 @@ from decimal import Decimal
 
 from sqlmodel import Session, select
 
-from app.db import get_engine, Invoice, Trip
+from app.db import get_engine, Trip
 
 
 def main():
     condition = Trip.duration.is_(None)
     with Session(get_engine()) as session:
-        query = select(Invoice).where(condition)
+        query = select(Trip).where(condition)
         trips = session.execute(query).all()
 
         for trip in trips:
