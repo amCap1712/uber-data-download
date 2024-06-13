@@ -23,7 +23,7 @@ def main():
 
             waypoints = trip_dict.get("waypoints", [])
             if len(waypoints) >= 2:
-                trip.start_address = waypoints[0]
+                trip.begin_address = waypoints[0]
                 trip.dropoff_address = waypoints[-1]
 
             session.add(trip)
