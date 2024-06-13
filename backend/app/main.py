@@ -62,7 +62,10 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
 
             distance = receipt_dict.get("distance")
             if distance is not None:
-                distance = Decimal(distance)
+                try:
+                    distance = Decimal(distance)
+                except decimal.InvalidOperation:
+                    distance = None
             distance_label = receipt_dict.get("distanceLabel")
 
             begin_address = None

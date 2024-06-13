@@ -1,3 +1,4 @@
+import decimal
 import traceback
 from decimal import Decimal
 
@@ -19,8 +20,10 @@ def main():
 
                 distance = receipt_dict.get("distance")
                 if distance is not None:
-                    print(distance)
-                    trip.distance = Decimal(distance)
+                    try:
+                        trip.distance = Decimal(distance)
+                    except decimal.InvalidOperation:
+                        trip.distance = None
                 trip.distance_label = receipt_dict.get("distanceLabel")
 
                 trip.duration = receipt_dict.get("duration")
