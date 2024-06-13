@@ -52,8 +52,23 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
 
         for item in submission.data:
             trip_id = item.summary["uuid"]
+            trip_dict = item.details.get("trip", {})
+            receipt_dict = item.details.get("receipt", {})
 
-            fare = parse_fare(item.details.get("trip", {}).get("fare"))
+            begin_trip_time = trip_dict.get("beginTripTime")
+            dropoff_trip_time = trip_dict.get("dropoffTime")
+            fare = parse_fare(trip_dict.get("fare"))
+            duration = receipt_dict.get("duration")
+            distance = Decimal(receipt_dict.get("distance"))
+            distance_label = receipt_dict.get("distanceLabel")
+
+            begin_address = None
+            dropoff_address = None
+
+            waypoints = trip_dict.get("waypoints", [])
+            if len(waypoints) >= 2:
+                begin_address = waypoints[0]
+                dropoff_address = waypoints[-1]
 
             statement = insert(Trip).values(
                 user_id=submission.user_id,
@@ -62,6 +77,13 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
                 details=item.details,
                 invoices_json=item.invoices,
                 fare=fare,
+                duration=duration,
+                distance=distance,
+                distance_label=distance_label,
+                begin_address=begin_address,
+                dropoff_address=dropoff_address,
+                begin_trip_time=begin_trip_time,
+                dropoff_trip_time=dropoff_trip_time
             ).on_conflict_do_nothing().returning(Trip.id)
             result = session.execute(statement)
 

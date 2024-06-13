@@ -93,6 +93,14 @@ class Trip(SQLModel, table=True):
     invoices_json: list[dict] = Field(default=[], sa_column=Column(JSONB))
     fare: Optional[Decimal] = None
 
+    begin_trip_time: Optional[str] = None
+    dropoff_trip_time: Optional[str] = None
+    distance: Optional[Decimal] = None
+    distanceLabel: Optional[str] = None
+    duration: Optional[str] = None
+    begin_address: Optional[str] = None
+    dropoff_address: Optional[str] = None
+
     invoices: list[Invoice] = Relationship(back_populates="trip")
 
     driver_invoice_data: Optional[DriverInvoiceData] = Relationship(back_populates="trip")
