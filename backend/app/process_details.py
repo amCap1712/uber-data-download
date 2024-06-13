@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from sqlmodel import Session, select
 
-from app.db import get_engine, Trip
+from app.db import get_engine, Trip, init_engine
 
 
 def main():
