@@ -19,7 +19,7 @@ def main():
             trip.distance = Decimal(receipt_dict.get("distance"))
             trip.distance_label = receipt_dict.get("distanceLabel")
             trip.begin_trip_time = trip_dict.get("beginTripTime")
-            trip.dropoff_time = trip_dict.get("dropoffTime")
+            trip.dropoff_trip_time = trip_dict.get("dropoffTime")
 
             waypoints = trip_dict.get("waypoints", [])
             if len(waypoints) >= 2:
