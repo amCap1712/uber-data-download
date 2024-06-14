@@ -8,7 +8,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Button from 'react-bootstrap/Button';
 
 const SUBMISSION_CHUNK_SIZE = 10;
-const STUDY_THANKS_URL = '';
+const STUDY_THANKS_URL = 'https://kiran-research2.comminfo.rutgers.edu/uber-data-download/study/thanks';
 
 function App() {
   const [disabled, setDisabled] = useState(false);
