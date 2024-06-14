@@ -106,8 +106,18 @@ async def main(submission: Submission, background_tasks: BackgroundTasks):
 
 
 @app.get("/study", response_class=HTMLResponse)
-async def read_item(request: Request):
-    return templates.TemplateResponse("study.html", {"request": request})
+async def study_prolific(request: Request):
+    return templates.TemplateResponse("study-prolific.html", {"request": request})
+
+
+@app.get("/study/facebook", response_class=HTMLResponse)
+async def study_facebook(request: Request):
+    return templates.TemplateResponse("study-facebook.html", {"request": request})
+
+
+@app.get("/study/thanks", response_class=HTMLResponse)
+async def study_thanks(request: Request):
+    return templates.TemplateResponse("study-thanks.html", {"request": request})
 
 
 @app.post("/receipts")

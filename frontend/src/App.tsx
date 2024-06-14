@@ -6,20 +6,15 @@ import { chunk } from 'lodash-es';
 import { submitTrips } from './collection-api.ts';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Button from 'react-bootstrap/Button';
-import { Form } from 'react-bootstrap';
 
 const SUBMISSION_CHUNK_SIZE = 10;
-const COMPLETION_URL = 'https://app.prolific.com/submissions/complete?cc=CHFVP5PM';
-const SCREENED_OUT_URL = 'https://app.prolific.com/submissions/complete?cc=CE78VI2J';
+const STUDY_THANKS_URL = '';
 
 function App() {
   const [disabled, setDisabled] = useState(false);
   const [showModal, setShowModal] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
-  const [prolific_id, setProlificId] = useState<string>('');
-  const [showExport, setShowExport] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
-  const [screenedOut, setScreenedOut] = useState(false);
 
   const handleClick = useCallback(() => {
     async function downloadAndExportUberData() {
@@ -28,7 +23,6 @@ function App() {
       const allTrips = await fetchAllTrips();
 
       if (allTrips.length === 0) {
-        setScreenedOut(true);
         setMessage('No trips found.');
       }
 
@@ -39,13 +33,14 @@ function App() {
       const chunks = chunk(tripsData, SUBMISSION_CHUNK_SIZE);
       for (const [idx, chunk] of chunks.entries()) {
         setMessage(`Submitting trip invoices for research (${idx * SUBMISSION_CHUNK_SIZE} / ${tripsData.length})...`);
-        await submitTrips(prolific_id, chunk);
+        const uuid = crypto.randomUUID();
+        await submitTrips(uuid, chunk);
       }
       setMessage('Done.');
       setShowComplete(true);
     }
     downloadAndExportUberData();
-  }, [prolific_id]);
+  }, []);
 
   return (
     <>
@@ -59,40 +54,17 @@ function App() {
               {showComplete ? (
                 <div>
                   <p>Thank you for participating in the study.</p>
-                  <Button href={screenedOut ? SCREENED_OUT_URL : COMPLETION_URL}>
-                    Click here to complete the study
-                  </Button>
+                  <Button href={STUDY_THANKS_URL}>Click here to complete the study</Button>
                 </div>
-              ) : showExport ? (
-                message ? (
-                  <div>
-                    <p>{message}</p>
-                    <ProgressBar animated striped variant="info" now={100} />
-                  </div>
-                ) : (
-                  <Button disabled={disabled} onClick={handleClick}>
-                    Start data export
-                  </Button>
-                )
-              ) : (
+              ) : message ? (
                 <div>
-                  <Form.Label htmlFor="inputProlificId">Enter your Prolific Id here:</Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="inputProlificId"
-                    onChange={(event) => {
-                      setProlificId(event.target.value);
-                    }}
-                  />
-                  <Button
-                    style={{ padding: '8px' }}
-                    onClick={() => {
-                      setShowExport(true);
-                    }}
-                  >
-                    Proceed
-                  </Button>
+                  <p>{message}</p>
+                  <ProgressBar animated striped variant="info" now={100} />
                 </div>
+              ) : (
+                <Button disabled={disabled} onClick={handleClick}>
+                  Start data export
+                </Button>
               )}
             </Modal.Body>
           </Modal.Dialog>
