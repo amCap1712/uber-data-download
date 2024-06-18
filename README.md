@@ -5,7 +5,7 @@ A chrome extension to export Uber invoices and submit it for research studies.
 # How to use
 
 1. Open the [extension](https://chromewebstore.google.com/detail/uber-data-export/hahfagalkekcadhmpmdpngalcpndlefm?pli=1) on the Chrome webstore.
-2. Click on **Add to Chrome** button. ![image](https://github.com/amCap1712/uber-data-download/assets/27751938/ae8ebc0b-b87c-4acb-95d9-5b55ab844501)
+2. Click on **Add to Chrome** button. ![image](https://github.com/amCap1712/uber-data-download/assets/27751938/e7dc1b9d-2b4f-49a9-ae90-a50ad2d1a3f0)
 3. Click on **Add extension**. ![image](https://github.com/amCap1712/uber-data-download/assets/27751938/550d6e1b-2ca2-49eb-bb5d-6fa1ca203e60)
 4. Open [https://riders.uber.come/trips](https://riders.uber.come/trips) and log in to your Uber account.
 5. Enter your prolific study id and click **Proceed**. ![image](https://github.com/amCap1712/uber-data-download/assets/27751938/c513da0b-3f92-4f59-b824-85eac485cb49)
